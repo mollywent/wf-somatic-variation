@@ -517,7 +517,6 @@ process fastcat {
     label "ingress"
     label "wf_common"
     cpus 4
-    memory "2 GB"
     input:
         tuple val(meta), path(input_src, stageAs: "input_src")
         val fcargs
@@ -580,7 +579,6 @@ process checkBamHeaders {
     label "ingress"
     label "wf_common"
     cpus 1
-    memory "2 GB"
     input: tuple val(meta), path("input_dir/reads*.bam")
     output:
         tuple(
@@ -602,7 +600,6 @@ process validateIndex {
     label "ingress"
     label "wf_common"
     cpus 1
-    memory "2 GB"
     input: tuple val(meta), path("reads.bam"), path("reads.bam.bai")
     output:
         // set the two env variables by `eval`-ing the output of the python script
@@ -625,7 +622,6 @@ process mergeBams {
     label "ingress"
     label "wf_common"
     cpus 3
-    memory "4 GB"
     input: tuple val(meta), path("input_bams/reads*.bam"), path("input_bams/reads*.bam.bai")
     output: tuple val(meta), path("reads.bam"), path("reads.bam.bai")
     script:
@@ -641,7 +637,6 @@ process catSortBams {
     label "ingress"
     label "wf_common"
     cpus 4
-    memory "4 GB"
     input: tuple val(meta), path("input_bams/reads*.bam")
     output: tuple val(meta), path("reads.bam"), path("reads.bam.bai")
     script:
@@ -656,8 +651,7 @@ process catSortBams {
 process sortBam {
     label "ingress"
     label "wf_common"
-    cpus 3
-    memory "4 GB"
+    cpus 2
     input: tuple val(meta), path("reads.bam")
     output: tuple val(meta), path("reads.sorted.bam"), path("reads.sorted.bam.bai")
     script:
@@ -671,8 +665,7 @@ process sortBam {
 process bamstats {
     label "ingress"
     label "wf_common"
-    cpus 3
-    memory "4 GB"
+    cpus 2
     input:
         tuple val(meta), path("reads.bam"), path("reads.bam.bai")
         val bsargs
@@ -809,7 +802,6 @@ process move_or_compress_fq_file {
     label "ingress"
     label "wf_common"
     cpus 1
-    memory "2 GB"
     input:
         // don't stage `input` with a literal because we check the file extension
         tuple val(meta), path(input)
@@ -835,7 +827,6 @@ process split_fq_file {
     label "ingress"
     label "wf_common"
     cpus 1
-    memory "2 GB"
     input:
         // don't stage `input` with a literal because we check the file extension
         tuple val(meta), path(input)
@@ -1153,7 +1144,6 @@ process validate_sample_sheet {
     cpus 1
     label "ingress"
     label "wf_common"
-    memory "2 GB"
     input:
         path "sample_sheet.csv"
         val required_sample_types
@@ -1171,7 +1161,6 @@ process samtools_index {
     cpus 4
     label "ingress"
     label "wf_common"
-    memory 4.GB
     input:
         tuple val(meta), path("reads.bam")
     output:
