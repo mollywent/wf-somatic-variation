@@ -1,5 +1,5 @@
 // Define memories for the phasing
-def req_mem = params.use_longphase ? [7.GB, 31.GB, 56.GB] : [4.GB, 7.GB, 12.GB]
+def req_mem = params.use_longphase ? [2, 4, 8] : [1, 2, 4]
 
 process make_chunks {
     // Do some preliminaries. Ordinarily this would setup a working directory
@@ -7,7 +7,6 @@ process make_chunks {
     // list of contigs and chunks.
     label "wf_somatic_snv"
     cpus 1
-    memory 4.GB
     input:
         tuple val(meta), path(bam), path(bai), path(contigs), path(ref), path(fai), path(ref_cache), env(REF_PATH), path(bed), val(model)
         val clair3_mode
@@ -56,11 +55,10 @@ process make_chunks {
 process pileup_variants {
     // Calls variants per region ("chunk") using pileup network.
     label "wf_somatic_snv"
-    cpus 1
+    cpus {1 * task.attempt}
     // This workflow takes 4Gb in, but on occasions (0.7% of jobs) there    
     // can be unexpected spikes of up to 8GB. Hard to predict the reason
     // for this, but the chances increase with larger genomes. Use retries.
-    memory { 4.GB * task.attempt }
     errorStrategy 'retry'
     maxRetries 1
     input:
@@ -125,8 +123,7 @@ process aggregate_pileup_variants {
     // from pileup network. Determines quality filter for selecting variants
     // to use for phasing.
     label "wf_somatic_snv"
-    cpus 2
-    memory { 4.GB * task.attempt }
+    cpus {2 * task.attempt}
     maxRetries 2
     errorStrategy = {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
@@ -171,7 +168,6 @@ process select_het_snps {
     // Filters a VCF by contig, selecting only het SNPs.
     label "wf_somatic_snv"
     cpus 2
-    memory 4.GB
     input:
         tuple val(meta), path(pileup_vcf), path(pileup_tbi), path(split, stageAs: "phase_qual"), val(contig)
         // this is used implicitely by the program
@@ -201,9 +197,8 @@ process phase_contig {
     //   but adds the VCF as it is now tagged with phasing information
     //   used later in the full-alignment model
     label "wf_somatic_snv"
-    cpus 4
+    cpus { req_mem[task.attempt - 1] }
     // Define memory from phasing tool and number of attempt
-    memory { req_mem[task.attempt - 1] }
     maxRetries 2
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
@@ -251,7 +246,6 @@ process get_qual_filter {
     // stage "full alignment" calling.
     label "wf_somatic_snv"
     cpus 2
-    memory 4.GB
     input:
         tuple val(meta), path("pileup.vcf.gz"), path("pileup.vcf.gz.tbi")
     output:
@@ -277,7 +271,6 @@ process create_candidates {
     // Performed per chromosome; output a list of bed files one for each chunk.
     label "wf_somatic_snv"
     cpus 2
-    memory 4.GB
     input:
         tuple val(meta), 
             path("pileup.vcf.gz"), 
@@ -321,8 +314,7 @@ process evaluate_candidates {
     // phased_bam just references the input BAM as it no longer contains phase information.
     // This can go very high, depending on the depth of coverage and size of the dataset.
     label "wf_somatic_snv"
-    cpus 1
-    memory { 8.GB * task.attempt }
+    cpus {2 * task.attempt}
     maxRetries 3
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
@@ -366,8 +358,7 @@ process evaluate_candidates {
 process aggregate_full_align_variants {
     // Sort and merge all "full alignment" variants
     label "wf_somatic_snv"
-    cpus 2
-    memory { 4.GB * task.attempt }
+    cpus {2 * task.attempt}
     maxRetries 3
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
@@ -418,7 +409,6 @@ process merge_pileup_and_full_vars{
     // Merge VCFs
     label "wf_somatic_snv"
     cpus 2
-    memory 4.GB
     input:
         tuple val(meta), 
             path(pile_up_vcf), 
@@ -465,8 +455,7 @@ process merge_pileup_and_full_vars{
 
 process aggregate_all_variants{
     label "wf_somatic_snv"
-    cpus 4
-    memory { 4.GB * task.attempt }
+    cpus {2 * task.attempt}
     maxRetries 3
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
