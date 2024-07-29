@@ -9,8 +9,7 @@ include { xam_ingress } from './ingress.nf'
 
 // Minimap2 mapping
 process minimap2_ubam {
-    cpus {params.ubam_map_threads + params.ubam_sort_threads + params.ubam_bam2fq_threads}
-    memory { (32.GB * task.attempt) - 1.GB }
+    cpus {4 * task.attempt}
     maxRetries 1
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
 
@@ -35,7 +34,6 @@ process minimap2_ubam {
 // Check if the XAM header refer to the input reference.
 process check_for_alignment {
     cpus 2
-    memory 4.GB
     input:
         tuple path(reference), path(ref_idx)
         tuple val(meta), path(xam), path(xam_idx)
