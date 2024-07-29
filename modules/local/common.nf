@@ -3,7 +3,6 @@ import groovy.json.JsonBuilder
 process cram_cache {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         path reference
     output:
@@ -20,7 +19,6 @@ process cram_cache {
 process index_ref_fai {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         file reference
     output:
@@ -33,7 +31,6 @@ process index_ref_fai {
 process index_ref_gzi {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         file reference
     output:
@@ -47,7 +44,6 @@ process index_ref_gzi {
 process decompress_ref {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         file compressed_ref
     output:
@@ -61,7 +57,6 @@ process decompress_ref {
 process bgzipper {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         path infile
     output:
@@ -77,7 +72,6 @@ process bgzipper {
 process tabixer {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         path infile
     output:
@@ -103,7 +97,6 @@ process tabixer {
 process getAllChromosomesBed {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         tuple path(reference), path(ref_idx), path(ref_cache), env(REF_PATH)
     output:
@@ -121,8 +114,7 @@ process annotate_vcf {
     // variants - if any variants are present in this file, it is used to populate a table in 
     // the report.
     label "snpeff_annotation"
-    cpus 1
-    memory 7.GB
+    cpus 2
     input:
         tuple val(meta), path("input.vcf.gz"), path("input.vcf.gz.tbi"), val(contig)
         val(output_label)
@@ -172,7 +164,6 @@ process annotate_vcf {
 process sift_clinvar_vcf {
     label "snpeff_annotation"
     cpus 1
-    memory 3.GB
     input:
         tuple val(meta), path("input.vcf.gz"), path("input.vcf.gz.tbi")
         val(output_label)
@@ -192,7 +183,6 @@ process sift_clinvar_vcf {
 
 process concat_vcfs {
     cpus 2
-    memory 3.GB
     input:
         tuple val(meta), path("vcfs/*"), path("vcfs/*")
         val(prefix)
@@ -209,7 +199,6 @@ process concat_vcfs {
 process getVersions {
     label "wf_common"
     cpus 1
-    memory 4.GB
     output:
         path "versions.txt"
     script:
@@ -226,7 +215,6 @@ process getVersions {
 
 process getVersions_somvar {
     cpus 1
-    memory 4.GB
     input:
         path "versions.tmp.txt"
     output:
@@ -244,7 +232,6 @@ process getVersions_somvar {
 process getParams {
     label "wf_common"
     cpus 1
-    memory 4.GB
     output:
         path "params.json"
     script:
@@ -259,7 +246,6 @@ process getParams {
 process getGenome {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         tuple path(xam), path(xam_idx), val(xam_meta)
     output:
