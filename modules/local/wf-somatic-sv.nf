@@ -5,7 +5,7 @@ def severus_mem = [8, 16]
 // Severus process
 process severus {
     label "wf_somatic_sv"
-    cpus { severus_mem[task.attempt - 1] })
+    cpus 16
     // Allow retries for testing purposes
     maxRetries 1
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
