@@ -663,7 +663,7 @@ process clairs_predict_full {
 // Merge single-contigs full-alignment variants in a single VCF file
 process clairs_merge_full {
     label "wf_somatic_snv"
-    cpus {2 * task.attempt)
+    cpus {2 * task.attempt}
     maxRetries 1
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
