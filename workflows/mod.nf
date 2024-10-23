@@ -3,7 +3,6 @@ import groovy.json.JsonBuilder
 process getVersions {
     label "wf_somatic_mod"
     cpus 1
-    memory 4.GB
     output:
         path "versions_tmp.txt"
     script:
@@ -17,7 +16,6 @@ process getVersions {
 process rVersions {
     label "dss"
     cpus 2
-    memory 4.GB
     input:
         path "versions_tmp.txt"
     output:
@@ -33,7 +31,6 @@ process rVersions {
 
 process getParams {
     cpus 1
-    memory 4.GB
     output:
         path "params.json"
     script:
@@ -83,7 +80,6 @@ process sample_probs {
     label "wf_somatic_mod"
     // Using 4 threads on a 90X takes ~30sec to complete
     cpus 4
-    memory 8.GB
     input:
         tuple path(alignment), 
             path(alignment_index), 
@@ -112,7 +108,6 @@ process sample_probs {
 process modkit {
     label "wf_somatic_mod"
     cpus params.modkit_threads
-    memory {(1.GB * params.modkit_threads * task.attempt) + 3.GB}
     maxRetries 1
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
@@ -153,7 +148,6 @@ process modkit {
 process concat_bedmethyl {
     label "wf_somatic_mod"
     cpus 4
-    memory 8.GB
 
     input:
         tuple val(meta),
@@ -176,7 +170,6 @@ process concat_bedmethyl {
 process bedmethyl_split {
     label "wf_common"
     cpus 1
-    memory 4.GB
     input:
         tuple val(meta), 
             path(bed)
@@ -198,7 +191,6 @@ process bedmethyl_split {
 process summary {
     label "wf_somatic_mod"
     cpus 4
-    memory { 8.GB * task.attempt }
     maxRetries 1
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input:
@@ -226,7 +218,6 @@ process summary {
 process bed2dss {
     label "wf_somatic_mod"
     cpus 2
-    memory 4.GB
     input:
         tuple val(meta), 
             val(mod),
@@ -313,8 +304,7 @@ process dss {
 // Make report.
 process makeModReport {
     label "wf_common"
-    cpus 1
-    memory { 6.GB * task.attempt }
+    cpus 2
     maxRetries 1
     errorStrategy {task.exitStatus in [137,140] ? 'retry' : 'finish'}
     input: 
