@@ -886,7 +886,7 @@ process clairs_create_paired_tensors_indels {
 // Perform pileup variant prediction of indels using the paired tensors from clairs_create_paired_tensors
 process clairs_predict_pileup_indel {
     label "wf_somatic_snv"
-    cpus {2 * task.attepmt}
+    cpus {2 * task.attempt}
     maxRetries 3
     // Add 134 as a possible error status. This is because currently ClairS fails with
     // this error code when libomp.so is already instantiated. This error is rather mysterious
