@@ -747,7 +747,6 @@ process clairs_full_hap_filter {
 process concat_hap_filtered_vcf {
     label "wf_somatic_snv"
     cpus 2
-    memory 4.GB
     input:
         tuple val(meta), 
             val(variant_type),
