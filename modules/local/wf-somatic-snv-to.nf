@@ -38,7 +38,6 @@ process getParams {
 process wf_build_regions {
     label "wf_somatic_snv_to"
     cpus 1
-    memory 4.GB
     input:
         tuple val(meta),
             path(tumor_bam, stageAs: "tumor/*"),
